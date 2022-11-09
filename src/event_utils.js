@@ -1,13 +1,14 @@
 
-let eventGuid = 0
+/*let eventGuid = 0
 let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
 const api_url = "http://localhost:8080/api/event";
 
 export async function getEvents() {
     const response = await fetch(api_url);
     var data = await response.json();
-    console.log(data);
+    //console.log(data);
 }
+
 
 export const INITIAL_EVENTS = [
     {
@@ -24,4 +25,4 @@ export const INITIAL_EVENTS = [
 
 export function createEventId() {
     return String(eventGuid++)
-}
+}*/
