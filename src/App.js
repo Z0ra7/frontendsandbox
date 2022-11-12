@@ -19,7 +19,7 @@ class App extends React.Component {
       user: []
     }
   }
-
+  
   componentDidMount() {
     //API request
     //if(this.stateLoaded)
@@ -40,9 +40,8 @@ class App extends React.Component {
         let obj = response.data[i];
 
         data.push({
-
           id: obj.eventId,
-          title: titleSan,
+          title: obj.eventType,
           start: new Date(obj.start),
           end: new Date(obj.end)
         });
@@ -52,9 +51,6 @@ class App extends React.Component {
 
     })
 
-    const article = { title: 'React PUT Request Example' };
-    axios.put('https://reqres.in/api/articles/1', article)
-      .then(response => this.setState({ updatedAt: response.data.updatedAt }));
   }
   handleEventClick = (clickInfo) => {
     if (window.confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
@@ -62,6 +58,7 @@ class App extends React.Component {
     }
   }
 
+ 
 
   handleDateClick = arg => {
     if (window.confirm("Would you like to add an event to " + arg.dateStr + " ?")) {
@@ -73,13 +70,38 @@ class App extends React.Component {
           start: arg.date,
           allDay: arg.allDay
         })
+       
       });
     }
+    function subtractHours(date, hours) {
+      date.setHours(date.getHours() - hours);
+    
+      return date;
+    }
+    function addHours(date, hr){
+      date.setHours(hr);
+      return date;
+  }
+
+  //console.log(arg.date.strftime('%d-%m-%Y %H:%M'))
+    console.log(arg.date.toISOString().replace(/T/, ' '))
+    var Date = addHours(arg.date,1)
+    console.log(Date);
+    console.log(Date.toISOString().replace(/T/, ' '));
+
+    axios.post('http://localhost:8080/api/event', {
+      id: null,
+      title: 1,
+      start: arg.date.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+      end: arg.date.toISOString().replace(/T/, ' ').replace(/\..+/, '')
+    //data
+
+    })
   };
 
   //Final output
   render() {
-
+console.log(this.state.event)
     return (
       <div className="App">
 
@@ -111,6 +133,7 @@ class App extends React.Component {
           eventContent={renderEventContent}
           dateClick={this.handleDateClick}
           eventClick={this.handleEventClick}
+
         />
       </div>
     );
