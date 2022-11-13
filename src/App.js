@@ -1,15 +1,16 @@
-import React, {} from 'react';
+import React, { } from 'react';
 import './App.css';
 //Importing FullCalendar Module
-import FullCalendar, { CalendarApi} from '@fullcalendar/react'
+import FullCalendar,  {} from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import "@fullcalendar/daygrid/main.css"
 import "@fullcalendar/timegrid/main.css"
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 //import { INITIAL_EVENTS, createEventId, getEvents } from './event_utils'
 //Importing axios service
 import axios from 'axios';
@@ -24,6 +25,7 @@ class App extends React.Component {
       currentEvent: {},
       user: [],
       modal: false,
+      eventType: []
     }
     //this.handleEventClick = this.handleEventClick.bind(this);
 
@@ -31,47 +33,45 @@ class App extends React.Component {
 
   componentDidMount() {
     //API request
-    //if(this.stateLoaded)
-    //{return;
-    //}
-
-
-    //this.stateLoaded = 
     axios.get("http://localhost:8080/api/event").then(response => {
-
-      // getting and setting api data into variable
-
-
+     // getting and setting api data into variable
+    // get events from database
       var data = [];
 
       for (let i = 0; i < response.data.length; i++) {
         let obj = response.data[i];
-
         data.push({
           id: obj.eventId,
           title: obj.eventType,
           start: new Date(obj.start),
           end: new Date(obj.end),
-          allDay:obj.allDay
+          allDay: obj.allDay
         });
-        this.setState({ event: data }); //,user: variable für userstate
+        
+    // get eventtypes from database
+
+        var eventTypes =['Arbeitszeit', 'Ferien','Militär','Krankheit','Anderes'];
+        this.setState({ event: data, eventType: eventTypes }); //,user: variable für userstate
         console.log(this.state.event)
       }
 
 
     })
-
   }
   toggle = () => {
 
     this.setState({ modal: !this.state.modal });
   };
 
+  handleDeleteEvent = (clickInfo) => {
 
+    console.log(clickInfo.event.id)
+
+
+    this.toggle();
+  }
 
   handleEventClick = (clickInfo) => {
-    //console.log(eventInfo.event.end)
-//var event = FullCalendar.CalendarApi.getEventById(clickInfo.event.id);
 
     console.log(clickInfo.event.id)
     const currentEventObject = { title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: clickInfo.event.start.toString() };
@@ -80,13 +80,9 @@ class App extends React.Component {
     }
     console.log(clickInfo.event.end)
     //console.log(currentEventObject)
-    this.setState({ currentEvent: currentEventObject })
+    this.setState({ currentEvent: currentEventObject})
 
     this.toggle();
-    //if (window.confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-
-    //clickInfo.event.remove()
-    //}
   }
 
   //handleEvents = (events) => {
@@ -113,11 +109,6 @@ class App extends React.Component {
     }
 
 
-    //console.log(arg.date.strftime('%d-%m-%Y %H:%M'))
-    // console.log(arg.date.toISOString().replace(/T/, ' '))
-    //console.log(Date);
-    //console.log(Date.toISOString().replace(/T/, ' '));
-
     axios.post('http://localhost:8080/api/event', {
       id: null,
       eventType: 1,
@@ -136,7 +127,7 @@ class App extends React.Component {
     if (title) {
       calendarApi.addEvent({
         id:
-        title,
+          title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
         allDay: selectInfo.allDay
@@ -194,20 +185,62 @@ class App extends React.Component {
           </ModalHeader>
           <ModalBody>
             <div>
-              Title: {this.state.currentEvent.title}
+
+            <div class="btn-group">
+  <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+  {this.state.currentEvent.title}
+  </button>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="#">{this.state.currentEvent.title}</a></li>
+    <li><a class="dropdown-item" href="#">Arbeitszeit</a></li>
+    <li><a class="dropdown-item"href="#">Militär</a></li>
+    <li><a class="dropdown-item"href="#">Andere</a></li>
+  </ul>
+</div>
+
               <br></br><br></br>
-              Start: {this.state.currentEvent.start}
+              Start:
+              <br></br> {this.state.currentEvent.start}
+              <br></br>
+              new Start:
+              <br></br>
+              <div class="form-group">
+              <input type="datetime-local" class="form-control"></input>
+              <small id="startHelp" class="form-text text-muted">Choose another date time for event.</small>
+              </div>
               <br></br><br></br>
               End: {this.state.currentEvent.end}
-              <br></br><br></br>
-
+              <br></br>
+              new End:
+              <br></br>
+              <div class="form-group">
+              <input type="datetime-local" class="form-control"></input>
+              <small id="endHelp" class="form-text text-muted">Choose another end date for event.</small>
+              </div>
+            <br></br>
+            <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1"></input>
+            <small id="allDayHelp" class="form-text text-muted">Allday Event? If checked end date will be ignored</small>
+            </div>
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary">Do Something</Button>{" "}
-            <Button color="secondary" onClick={this.toggle}>
+          
+          <Button variant="danger" onClick={this.toggle}>
+              Delete event
+            </Button>
+            <Button variant="primary" onClick={this.toggle}>
+              Save changes
+            </Button>
+            <Button variant="light" onClick={this.toggle}>
               Cancel
             </Button>
+
+            
+
+
+          
+
           </ModalFooter>
         </Modal>
       </div>
