@@ -1,6 +1,7 @@
-import React, {} from 'react';
+import React, { } from 'react';
 import './App.css';
 //Importing FullCalendar Module
+import Popup from './event_utils';
 import FullCalendar, { } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -16,11 +17,16 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 //Importing axios service
 import axios from 'axios';
 //import { INITIAL_EVENTS } from './event_utils';
+const eventPath = '159.69.194.20:8080/api/event'//"http://localhost:8080/api/event"//"http://localhost:8080/api/event";
 
 class App extends React.Component {
   calendarRef = React.createRef()
   //initialize array variable
   isPostRequest = false; // stands for is POSTREQUEST for modal
+  changedTitle = null;
+  changedStart = null;
+  changedEnd = null;
+  changedallDay = null;
   constructor() {
     //super is used to access the variables
     super();
@@ -32,18 +38,18 @@ class App extends React.Component {
       eventType: [],
       isPOST: false,
       clickedDate: '',
-      onChangeEventTitle:'',
-      onChangeEventStart:'',
-      onChangeEventEnd:'',
-      onChangeEventallDay:false,
+      onChangeEventTitle: 'Arbeitszeit', //Default "Arbeitszeit"
+      onChangeEventStart: null,
+      onChangeEventEnd: null,
+      onChangeEventallDay: false,
     };
     //this.handleChange = this.handleChange.bind(this)
   }
 
-  
+
   componentDidMount() {
     //API request
-    axios.get("http://localhost:8080/api/event").then(response => {
+    axios.get(eventPath).then(response => {
       // getting and setting api data into variable
       // get events from database
       var data = [];
@@ -67,37 +73,34 @@ class App extends React.Component {
 
     })
   }
-  //componentDidUpdate(prevProps, prevState) { 
-    // check whether client has changed 
-    //if (prevProps.event !== this.props.event) { 
-     // this.fetchData(this.props.client); 
-    //} 
-  //} 
-  handleChangeTitel = (e, prop) => {
+
+  handleChangeEvent = (e, prop) => {
+    console.log('im handle change')
+    console.log(prop + ': ' + e.target.value)
+
     if (prop === "title") {
-      this.setState({ onChangeEventTitle: e.target.value })
+      this.changedTitle = e.target.value //richtig im put
+      this.setState({ onChangeEventTitle: e.target.value })//richtig im post
     } else if (prop === "start") {
+      this.changedStart = e.target.value
       this.setState({ onChangeEventStart: e.target.value })
     } else if (prop === "end") {
+      this.changedEnd = e.target.value
       this.setState({ onChangeEventEnd: e.target.value })
     } else if (prop === "allDay") {
+      this.changedallDay = e.target.value
       this.setState({ onChangeEventallDay: !this.state.onChangeEventallDay })
     } else {
       return;
     }
-
   }
-    
-    
-    
-  
 
   toggle = () => {
     //set back allDay boolean and modal state
     if (this.state.onChangeEventallDay) {
       this.setState({ onChangeEventallDay: !this.state.onChangeEventallDay })
     }
-    this.setState({ modal: !this.state.modal });
+    this.setState({ modal: !this.state.modal, onChangeEventStart: null });
   };
 
 
@@ -105,53 +108,75 @@ class App extends React.Component {
     let calendarApi = this.calendarRef.current.getApi()
     let event = calendarApi.getEventById(this.state.currentEvent.id)
     event.remove()
-  
-
     this.toggle();
-
-    axios.delete('http://localhost:8080/api/event', { params: { Id: this.state.currentEvent.id } })
-
+    axios.delete(eventPath, { params: { Id: this.state.currentEvent.id } })
   }
 
   handlePutEvent = () => {
     console.log('is a put')
-    console.log(this.state.currentEvent)
-    //let calendarApi = this.calendarRef.current.getApi()
-    //let event = calendarApi.getEventById(this.state.currentEvent.id)
-    //console.log(event.id)
-    //event.remove()
-
-    //this.toggle();
-
-    //this.state.currentEvent.remove()
+console.log(this.changedStart)
+console.log(this.state.currentEvent.start)
 
     // Post event data to backend endpoint
-    axios.put('http://localhost:8080/api/event', {
-    eventType: this.state.currentEvent.title,  
-    start: this.state.currentEvent.start ,
-    end: this.state.currentEvent.end,
-    allDay: this.state.currentEvent.allDay
+    axios.put(eventPath, {
+      eventId: this.state.currentEvent.id,
+      eventType: this.changedTitle,
+      start: this.state.currentEvent.start,
+      end: this.state.currentEvent.end,
+      allDay: this.state.currentEvent.allDay
     }).then((response) => {
-      console.log(response)
+      //handle success
+      let calendarApi = this.calendarRef.current.getApi()
+      let event = calendarApi.getEventById(this.state.currentEvent.id)
+      //delete event immediately in daygrid view
+      event.remove()
+      //show event immediately in daygrid view
+      calendarApi.addEvent({
+        title: this.changedTitle,
+        start: this.state.currentEvent.start,
+        end: this.state.onChangeEventEnd,
+        allDay: this.state.onChangeEventallDay
+      })
+      console.log(response);
+      alert('Event successfully updated.')
     })
+      .catch((response) => {
+        //handle error
+        console.log(response)
 
+        alert('Event could not be updated.')
+
+      })
+    this.toggle()
   }
 
 
   handlePostEvent = () => {
     console.log('handlePostEvent')
 
+    let EventChangeStart = this.state.onChangeEventStart;
+    if (this.state.onChangeEventStart === null) {
+      EventChangeStart = this.state.clickedDate;
+    }
 
+    let calendarApi = this.calendarRef.current.getApi()
+    //show event immediately in daygrid view
+    calendarApi.addEvent({
+      title: this.state.onChangeEventTitle,
+      start: EventChangeStart,
+      end: this.state.onChangeEventEnd,
+      allDay: this.state.onChangeEventallDay
+    })
 
     // Post event data to backend endpoint
-   axios.post('http://localhost:8080/api/event', {
-    eventType: this.state.onChangeEventTitle,
-    start: this.state.onChangeEventStart,
-    end:this.state.onChangeEventEnd,
-    allDay: this.state.onChangeEventallDay
+    axios.post(eventPath, {
+      eventType: this.state.onChangeEventTitle,
+      start: EventChangeStart,
+      end: this.state.onChangeEventEnd,
+      allDay: this.state.onChangeEventallDay
     });
-    window.location.reload();
-this.toggle();
+    //close modal
+    this.toggle()
     //reset isPost boolean
     this.setState({ isPOST: false })
   }
@@ -162,7 +187,6 @@ this.toggle();
   //PostRequest
   handleDateClick = arg => {
     this.isPostRequest = true;
-    console.log(this.isPostRequest)
     // Define start str which gets its value from click arg and format it with moment
     const startDateStr = moment(arg.date).format('YYYY-MM-DDTHH:mm');
     // release currentEvent in state
@@ -176,15 +200,13 @@ this.toggle();
 
   // putRequest
   handleEventClick = (clickInfo) => {
-    console.log(this.isPostRequest)
-    const currentEventObject = { id: clickInfo.event.id, title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'),end: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm') };
+    const currentEventObject = { id: clickInfo.event.id, title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'), end: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm') };
     if (clickInfo.event.end != null) {
       currentEventObject.end = moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm');
     }
 
     this.setState({ currentEvent: currentEventObject, clickedDate: currentEventObject.start, isPost: true })
-    console.log(this.state.currentEvent.title)
-    console.log(this.state.isPOST)
+
     this.toggle(); //macht pop auf
   }
 
@@ -208,14 +230,10 @@ this.toggle();
     // }
   }
   resetParams = () => {
-    console.log('module wurde geschlossen')
-    console.log(this.state.onChangeEventTitle)
     this.isPostRequest = false; //set back to default
-   // window.location.reload();
-    console.log(this.isPostRequest)
   };
 
-  
+
   //Final output
   render() {
     return (
@@ -265,7 +283,7 @@ this.toggle();
           </ModalHeader>
           <ModalBody>
             <div>
-              <select onChange={(e) => this.handleChangeTitel(e,'title')} defaultValue={this.state.currentEvent.title} class="form-select" aria-label="Default select example">
+              <select onChange={(e) => this.handleChangeEvent(e, 'title')} defaultValue={this.state.currentEvent.title} className="form-select" aria-label="Default select example">
                 <option value="Arbeitszeit">Arbeitszeit</option>
                 <option value="Ferien">Ferien</option>
                 <option value="Militär">Militär</option>
@@ -274,31 +292,31 @@ this.toggle();
               </select>
               <br></br>
               <br></br>
-              <div class="form-group" onChange={(e) => this.handleChangeTitel(e,'start')}>
-                <input class="form-control" onFocus={(e) => {
+              <div className="form-group" onChange={(e) => this.handleChangeEvent(e, 'start')}>
+                <input className="form-control" onFocus={(e) => {
                   e.target.type = 'datetime-local'
-                  console.log('focused')
+
                 }}
                   placeholder={this.state.clickedDate}
                 />
-                <small id="startHelp" class="form-text text-muted">Choose another start date for event.</small>
+                <small id="startHelp" className="form-text text-muted">Choose another start date for event.</small>
               </div>
               <br></br><br></br>
 
-              <div class="form-group" onChange={(e) => this.handleChangeTitel(e,'end')}>
-                <input class="form-control" onFocus={(e) => {
+              <div className="form-group" onChange={(e) => this.handleChangeEvent(e, 'end')}>
+                <input className="form-control" onFocus={(e) => {
                   e.target.type = 'datetime-local'
-                  console.log('focused')
+
                 }}
                   placeholder={this.state.clickedDate}
                 />
-                <small id="endHelp" class="form-text text-muted">Choose another end date for event.</small>
+                <small id="endHelp" className="form-text text-muted">Choose another end date for event.</small>
               </div>
 
               <br></br>
-              <div class="form-check" onChange={(e) => this.handleChangeTitel(e,'allDay')}>
-                <input type="checkbox" class="form-check-input" id="exampleCheck1"></input>
-                <small id="allDayHelp" class="form-text text-muted">Allday Event? If checked end date will be ignored</small>
+              <div className="form-check" onChange={(e) => this.handleChangeEvent(e, 'allDay')}>
+                <input type="checkbox" className="form-check-input" id="exampleCheck1"></input>
+                <small id="allDayHelp" className="form-text text-muted">Allday Event? If checked end date will be ignored</small>
               </div>
             </div>
           </ModalBody>
@@ -317,7 +335,7 @@ this.toggle();
             }}>
               Save changes
             </Button>
-            <Button variant="light" onClick={this.handleChangeTitel}>
+            <Button variant="light" onClick={this.toggle}>
               Cancel
             </Button>
           </ModalFooter>
