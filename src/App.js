@@ -1,7 +1,9 @@
 import React, { } from 'react';
 import './App.css';
 //Importing FullCalendar Module
+import {Login} from './Login';
 import Popup from './event_utils';
+import { checkToken } from './login_utils';
 import FullCalendar, { } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -16,8 +18,11 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 //import { INITIAL_EVENTS, createEventId, getEvents } from './event_utils'
 //Importing axios service
 import axios from 'axios';
+//axios.defaults.baseURL = '159.69.194.20:8080';
 //import { INITIAL_EVENTS } from './event_utils';
-const eventPath = '159.69.194.20:8080/api/event'//"http://localhost:8080/api/event"//"http://localhost:8080/api/event";
+const eventPath = 'http://localhost:8080/api/event'
+//'http://159.69.194.20:8080/api/event'
+//"http://localhost:8080/api/event"//"http://localhost:8080/api/event";
 
 class App extends React.Component {
   calendarRef = React.createRef()
@@ -31,6 +36,7 @@ class App extends React.Component {
     //super is used to access the variables
     super();
     this.state = {
+      token:false,
       event: [],
       currentEvent: {},
       user: [],
@@ -236,7 +242,7 @@ console.log(this.state.currentEvent.start)
 
   //Final output
   render() {
-    return (
+    return [
       <div className="App">
 
         <h1>SSE Terminkalender</h1>
@@ -341,7 +347,9 @@ console.log(this.state.currentEvent.start)
           </ModalFooter>
         </Modal>
       </div>
-    );
+
+
+    ]
 
   }
 
