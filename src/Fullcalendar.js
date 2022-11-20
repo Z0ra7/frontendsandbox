@@ -2,6 +2,7 @@ import React, { useEffect, useState} from 'react';
 import './App.css';
 //Importing FullCalendar Module
 import {Login} from './Login';
+import Popup from './event_utils';
 import { checkToken } from './login_utils';
 import FullCalendar, { } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -14,41 +15,8 @@ import moment from 'moment';
 import "@fullcalendar/daygrid/main.css"
 import "@fullcalendar/timegrid/main.css"
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import {
-  BrowserRouter as Router,
-  Routes, // instead of "Switch"
-  Route,Outlet,
-  Link
-} from "react-router-dom";
-//import { INITIAL_EVENTS, createEventId, getEvents } from './event_utils'
-//Importing axios service
 import axios from 'axios';
-//axios.defaults.baseURL = '159.69.194.20:8080';
-//import { INITIAL_EVENTS } from './event_utils';
-//const eventPath = 'http://localhost:8080/api/event'
-//'http://159.69.194.20:8080/api/event'
-//"http://localhost:8080/api/event"//"http://localhost:8080/api/event";
-
-//class App extends React.Component {
-  export default function App() {
-    return (
-    
-      <Router>
-
-          <Routes>
-            <Route index element={<Login/>}/>
-            <Route path="fullcalendar" element={<Calendar/>}/>
-         
-          </Routes>
-
-      </Router>
-
-    );
-  }
-
-
-
-  function Calendar(){
+function Calendar(){
     const eventPath = 'http://localhost:8080/api/event'
    const calendarRef = React.useRef()
   //initialize array variable
@@ -396,11 +364,4 @@ setIsPost(true);
         </Modal>
       </div>
     );
-
-    
-
-  
-
-}
-
-
+        }
