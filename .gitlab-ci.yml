@@ -13,7 +13,7 @@ build:
     - yarn build
   artifacts:
     paths:
-      - build/
+      - build
 
 # Stages run sequentially, so we add a new `deploy` stage 
 # after the `build` one
