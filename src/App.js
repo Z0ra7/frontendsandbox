@@ -52,7 +52,7 @@ import axios from 'axios';
     const eventPath = 'http://localhost:8080/api/event'
    const calendarRef = React.useRef()
   //initialize array variable
-   let isPostRequest = false; // stands for is POSTREQUEST for modal
+   //let isPostRequest = null; // stands is POSTREQUEST for modal
    let changedTitle = null;
    let changedStart = null;
    let changedEnd = null;
@@ -69,12 +69,11 @@ import axios from 'axios';
       const[currentEvent,setCurrentEvent]=useState({});
       //user: [],
       const[user,setUser]=useState([]);
+      let[isPostRequest,setIsPostRequest]=useState(true)
       //modal: false,
       const[modal,setModal]=useState(false);
       //eventType: [],
       const[eventType,setEventType]=useState([]);
-      //isPOST: false,
-      const[isPost,setIsPost]=useState(false);
       //clickedDate: '',
       const[clickedDate,setClickedDate]=useState('');
       //onChangeEventTitle: 'Arbeitszeit', //Default "Arbeitszeit"
@@ -116,9 +115,13 @@ import axios from 'axios';
                               } );
 };
 useEffect(() => {
+  console.log('useffect')
   getEvent();
-}, []);
+}, [isPostRequest]);
 
+const changeIsPostRequest = (isPostReq) => {
+  setIsPostRequest(isPostReq);
+};
   
 
   const handleChangeEvent = (e, prop) => {
@@ -163,6 +166,7 @@ useEffect(() => {
 
  const handlePutEvent = () => {
     console.log('is a put')
+
 console.log(changedStart)
 console.log(currentEvent.start)
 
@@ -202,6 +206,7 @@ console.log(currentEvent.start)
 
   const handlePostEvent = () => {
     console.log('handlePostEvent')
+    console.log(isPostRequest)
 
     let EventChangeStart = onChangeEventStart;
     if (onChangeEventStart === null) {
@@ -228,7 +233,6 @@ console.log(currentEvent.start)
     toggle()
     //reset isPost boolean
     //this.setState({ isPOST: false })
-    setIsPost(false);
   }
 
 
@@ -236,23 +240,27 @@ console.log(currentEvent.start)
   // Add events on Click
   //PostRequest
  const  handleDateClick = arg => {
-    isPostRequest = true;
+  console.log('imhandleDateclick')
+  console.log(isPostRequest)
+  changeIsPostRequest(true);
+    //setIsPostRequest = (true);
+    console.log(isPostRequest)
     // Define start str which gets its value from click arg and format it with moment
     const startDateStr = moment(arg.date).format('YYYY-MM-DDTHH:mm');
     // release currentEvent in state
     //this.setState({ currentEvent: '', isPOST: true, clickedDate: startDateStr });
     setCurrentEvent('');
-    setIsPost(true);
     setClickedDate(startDateStr);
-
-
-
     // popup modal view
     toggle();
   }
 
   // putRequest
  const  handleEventClick = (clickInfo) => {
+  console.log('imhandleEventclick')
+  console.log(isPostRequest)
+  changeIsPostRequest(false);
+  console.log(isPostRequest)
     const currentEventObject = { id: clickInfo.event.id, title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'), end: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm') };
     if (clickInfo.event.end != null) {
       currentEventObject.end = moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm');
@@ -261,8 +269,8 @@ console.log(currentEvent.start)
     //setEvent([currentEvent: currentEventObject, clickedDate: currentEventObject.start, isPost: true ]);
 setCurrentEvent(currentEventObject);
 setClickedDate(currentEventObject.start);
-setIsPost(true);
-    toggle(); //macht pop auf
+
+    toggle(); //macht popup auf
   }
 
 
@@ -284,9 +292,9 @@ setIsPost(true);
     //  })
     // }
   }
- const  resetParams = () => {
-    isPostRequest = false; //set back to default
-  };
+ //const  resetParams = () => {
+  //  isPostRequest = false; //set back to default
+  //};
 
 
   //Final output
@@ -330,7 +338,7 @@ setIsPost(true);
         <Modal
           isOpen={modal}
           toggle={toggle}
-          onClosed={resetParams}
+          //onClosed={resetParams}
         >
           <ModalHeader toggle={toggle}>
             Edit Event: {currentEvent.title}

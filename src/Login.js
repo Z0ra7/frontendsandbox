@@ -1,14 +1,38 @@
 import React from "react"
 import './Login.css';
 import {Link, Routes, Route, useNavigate} from 'react-router-dom';
+import axios from 'axios';
+const session_url = 'http://localhost:8080/api/event';
 export function Login (props) {
   const navigate = useNavigate();
+
   const handleSubmit = event => {
     event.preventDefault();
-console.log('im navigate')
+
+    console.log('im navigate')
+    handleAuthenticate();
     // 👇️ redirect to /fullcalendar
     navigate('fullcalendar');
   };
+
+
+  const handleAuthenticate = async() => {
+    console.log('im handleauthe')
+    let uname = 'steven';
+    let pass = '$2a$12$Q5bLex45Up0WL0b2UxliIO1CvktWGcFeuQE8ZjnwjNdz6lFzxT4IK';
+    await axios.post(session_url, {}, {
+      auth: {
+        username: uname,
+        password: pass
+      }
+    });
+
+
+console.log('im navigate')
+    // 👇️ redirect to /fullcalendar
+    navigate('fullcalendar');
+  }
+
 
   return (
     <div className="Auth-form-container">
