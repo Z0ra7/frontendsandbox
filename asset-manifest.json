@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/sse_frontend/static/css/main.d19234f2.css",
+    "main.js": "/sse_frontend/static/js/main.931417e2.js",
+    "index.html": "/sse_frontend/index.html",
+    "main.d19234f2.css.map": "/sse_frontend/static/css/main.d19234f2.css.map",
+    "main.931417e2.js.map": "/sse_frontend/static/js/main.931417e2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d19234f2.css",
+    "static/js/main.931417e2.js"
+  ]
+}
