@@ -1,42 +1,66 @@
-stages:          # List of stages for jobs, and their order of execution.
+stages:
   - build
-  - test
+
+build:
+  image: node:latest    
+  stage: build
+  variables: 
+    # Replace this with your site URL
+    PUBLIC_URL: https://steven.meyer@students.ffhs.ch.gitlab.io/SSE_Frontend/  
+  script:
+    - yarn install      
+    - yarn build
+  artifacts:
+    paths:
+      - build/ 
+  
+
+January 17, 2021
+• 3 min read
+Continuously deploy a React App to GitLab Pages
+
+If you're looking for a simple way to deploy a CRA app everytime you push new changes, Gitlab Pages can be a great way to do this.
+
+By the end of this article you'll learn how to:
+
+    setup a GitLab CI pipeline to build the app on every new commit
+    deploy the app to GitLab Pages on every commit to master, automatically
+
+This walkthrough assumes you're using Gitlab to host your repository.
+Step 1: Setup the CI pipeline to build the project
+
+What we want is to run yarn build after every commit and to save the contents of the build folder as a GitLab artifact that we can later use.
+
+If you haven't already, create a .gitlab-ci.yml file in the root of your project:
+
+stages:
+  - build
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
+build:
+  image: node:latest    
   stage: build
+  variables: 
+    # Replace this with your site URL
+    PUBLIC_URL: https://steven.meyer@students.ffhs.ch.gitlab.io/SSE_Frontend/  
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - yarn install      
+    - yarn build
+  artifacts:
+    paths:
+      - build/
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
-
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully. 
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
-    
+# Stages run sequentially, so we add a new `deploy` stage 
+# after the `build` one
+  
 pages:
+  image: alpine:latest
   stage: deploy
+  variables:
+    GIT_STRATEGY: none        # Do not clone git repo
   script:
-    - mkdir .public
-    - cp -r ./* .public
-    - rm -rf public
-    - mv .public public
+    # Rename the CRA `build` folder to `public`
+    - mv build public         
   artifacts:
     paths:
       - public
