@@ -2,7 +2,7 @@ stages:
   - build
 
 build:
-  image: node:latest    # Run the job in a `node` docker image
+  image: node:latest    # Run the job in a `node` docker image 
   stage: build
   script:
     - yarn info 
