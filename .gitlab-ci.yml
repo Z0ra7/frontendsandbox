@@ -9,4 +9,4 @@ build:
     - yarn build
   artifacts:
     paths:
-      - build/          # Save the build result as an artfact 
+      - build/           # Save the build result as an artfact 
