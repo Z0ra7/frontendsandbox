@@ -1,57 +1,67 @@
 import React from "react"
 import './Login.css';
-import {Link, Routes, Route, useNavigate} from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 import axios from 'axios';
-const session_url = 'http://localhost:8080/api/event';
-export function Login (props) {
+const session_url = 'http://localhost:8080/login';
+export let currentUser={};
+export function Login(props) {
   const navigate = useNavigate();
+
+  let uname;
+  let password;
 
   const handleSubmit = event => {
     event.preventDefault();
 
-    console.log('im navigate')
-    handleAuthenticate();
-    // 👇️ redirect to /fullcalendar
-    navigate('fullcalendar');
-  };
+    //check if username and password exist
+    axios.post(session_url, {
+      username: uname,
+      password: password
+    }).then((response) => {
 
-
-  const handleAuthenticate = async() => {
-    console.log('im handleauthe')
-    let uname = 'steven';
-    let pass = '$2a$12$Q5bLex45Up0WL0b2UxliIO1CvktWGcFeuQE8ZjnwjNdz6lFzxT4IK';
-    await axios.post(session_url, {}, {
-      auth: {
-        username: uname,
-        password: pass
+      //checks if backend found a user
+      if (response.data) {
+        // save userdata for session
+        currentUser = response.data;
+        // redirect to /fullcalendar
+        navigate('fullcalendar');
+      } else {
+        alert('Wrong username or password.')
       }
     });
+  }
 
-
-console.log('im navigate')
-    // 👇️ redirect to /fullcalendar
-    navigate('fullcalendar');
+  const handleOnBlur = (e, prop) => {
+    if (prop === "uname") {
+      uname = e.target.value;
+    } else if (prop === "password") {
+      password = e.target.value;
+    } else {
+      return;
+    }
   }
 
 
   return (
     <div className="Auth-form-container">
-      
+
       <form className="Auth-form">
         <div className="Auth-form-content">
-        <img src={require('./FFHS_Logo.png')}/>
+          <img src={require('./FFHS_Logo.png')} alt="FFHS Logo"/>
           <h3 className="Auth-form-title">Sign In</h3>
           <div className="form-group mt-3">
-            <label>Email address</label>
+            <label>Username</label>
             <input
+              onBlur={(e) => handleOnBlur(e, 'uname')}
               type="email"
               className="form-control mt-1"
-              placeholder="Enter email"
+              placeholder="Enter username"
             />
           </div>
           <div className="form-group mt-3">
             <label>Password</label>
             <input
+              onChange={(e) => handleOnBlur(e, 'password')}
               type="password"
               className="form-control mt-1"
               placeholder="Enter password"
@@ -62,11 +72,9 @@ console.log('im navigate')
               Submit
             </button>
           </div>
-          <p className="forgot-password text-right mt-2">
-            Forgot <a href="#">password?</a>
-          </p>
         </div>
       </form>
     </div>
   )
 }
+export default currentUser;
