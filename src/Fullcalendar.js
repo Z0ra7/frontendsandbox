@@ -20,35 +20,34 @@ import axios from 'axios';
 
 
 export function MyFullcalendar() {
+  //initialize constants
   const navigate = useNavigate();
   const eventPath = 'http://localhost:8080/api/event/'
   const userId = currentUser.userId;
   const calendarRef = React.useRef()
 
   //initialize array variable
-  let changedTitle = null;
+  let changedTitle = 'Arbeitszeit';
   let changedStart = null;
   let changedEnd = null;
   let changedallDay = null;
-  //states
+
+  //initialize states
   const [event, setEvent] = useState([]);
   const [currentEvent, setCurrentEvent] = useState({});
+  let [currentEventTitle, SetCurrentEventTitle] = useState('Arbeitszeit')
+  let [currentEventStart, SetCurrentEventStart] = useState()
+  let [currentEventEnd, SetCurrentEventEnd] = useState()
+  let [currentEventAllDay, SetCurrentEventAllDay] = useState()
   let [isPostRequest, setIsPostRequest] = useState(true)
   const [modal, setModal] = useState(false);
   const [clickedDate, setClickedDate] = useState('');
-
-  //@todo delete
-  //const [onChangeEventTitle, setOnChangeEventTitle] = useState('Arbeitszeit');
-
-  //const [onChangeEventStart, setOnChangeEventStart] = useState(null);
-  //const [onChangeEventEnd, setOnChangeEventEnd] = useState(null);
-  //const [onChangeEventallDay, setOnChangeEventallDay] = useState(false);
 
 //------------------------------------------------------------------------------
 //------getEvent----------------------------------------------------------------
 //------------------------------------------------------------------------------
   const getEvent = async () => {
-    await axios.get(eventPath + userId).then(response => {
+      await axios.get(eventPath + userId).then(response => {
       // getting and setting api data into variable
       // get events from database
 
@@ -79,10 +78,12 @@ export function MyFullcalendar() {
     if (currentUser.userId === undefined) {
       navigate('login')
     }
-   
-    getEvent();
+
+    // initialize all user based events
+         getEvent();
+ 
     // eslint-disable-next-line
-  }, [isPostRequest]);
+  }, []);
 
 //------------------------------------------------------------------------------
 //------changeIsPostRequest-----------------------------------------------------
@@ -92,6 +93,57 @@ export function MyFullcalendar() {
   };
 
 //------------------------------------------------------------------------------
+//------toggle------------------------------------------------------------------
+//--------pops up modal view----------------------------------------------------
+  const toggle = () => {
+    getEvent();
+    //set back allDay boolean and modal state
+    if (changedallDay) {
+      changedallDay=!changedallDay;
+    }
+    setModal(!modal);
+    changedStart=null;
+
+
+  };
+
+//------------------------------------------------------------------------------
+//------handleDateClick---------------------------------------------------------
+//------Postrequest-------------------------------------------------------------
+  const handleDateClick = arg => {
+    console.log('imhandleDateclick')
+    changeIsPostRequest(true);
+    // Define start str which gets its value from click arg and format it with moment
+    const startDateStr = moment(arg.date).format('YYYY-MM-DDTHH:mm');
+    // release currentEvent in state
+    setCurrentEvent(null);
+    setClickedDate(moment(startDateStr).format('YYYY-MM-DDTHH:mm'));
+    toggle();
+  }
+  
+//------------------------------------------------------------------------------
+//------handleEventClick--------------------------------------------------------
+//------------------------------------------------------------------------------
+  // putRequest
+  const handleEventClick = (clickInfo) => {
+    console.log('imhandleEventclick')
+    changeIsPostRequest(false);
+ 
+    console.log(clickInfo.event.id)
+    console.log(clickInfo.event.title)
+    const currentEventObject = { id: clickInfo.event.id, title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'), end: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm') };
+    if (clickInfo.event.end != null) {
+      currentEventObject.end = moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm');
+    }
+
+    setCurrentEvent(currentEventObject);
+    console.log(currentEvent)
+    setClickedDate(currentEventObject.start);
+    toggle();
+  }
+
+
+//------------------------------------------------------------------------------
 //------handleChangeEvent-------------------------------------------------------
 //------------------------------------------------------------------------------
   const handleChangeEvent = (e, prop) => {
@@ -99,90 +151,27 @@ export function MyFullcalendar() {
     console.log(prop + ': ' + e.target.value)
 
     if (prop === "title") {
+      console.log('drinnen')
       changedTitle = e.target.value //richtig im put
+      console.log(changedTitle)
+      SetCurrentEventTitle(e.target.value)
       //setOnChangeEventTitle(e.target.value)//richtig im post
     } else if (prop === "start") {
       changedStart = e.target.value
+      SetCurrentEventStart(moment(e.target.value).format('YYYY-MM-DDTHH:mm'))
+      
       //setOnChangeEventStart(e.target.value)
     } else if (prop === "end") {
       changedEnd = e.target.value
+      SetCurrentEventEnd(e.target.value)
      // setOnChangeEventEnd(e.target.value)
     } else if (prop === "allDay") {
-      changedallDay = e.target.value
+      SetCurrentEventAllDay(moment(e.target.value).format('YYYY-MM-DDTHH:mm'))
+      changedallDay = true
      // setOnChangeEventallDay(!this.state.onChangeEventallDay)
     } else {
       return;
     }
-  }
-
-//------------------------------------------------------------------------------
-//------toggle------------------------------------------------------------------
-//--------pops up modal view----------------------------------------------------
-  const toggle = () => {
-    //set back allDay boolean and modal state
-    if (changedallDay) {
-      changedallDay=!changedallDay;
-      //setOnChangeEventallDay(!this.state.onChangeEventallDay)
-    }
-    setModal(!modal);
-    changedStart=null;
-    //setOnChangeEventStart(null)
-  };
-
-//------------------------------------------------------------------------------
-//------handleDeleteEvent-------------------------------------------------------
-//------------------------------------------------------------------------------
-  const handleDeleteEvent = () => {
-    let calendarApi = calendarRef.current.getApi()
-    let event = calendarApi.getEventById(currentEvent.id)
-    console.log(currentEvent.id)
-    event.remove()
-    toggle();
-
-    axios.delete(eventPath + userId, { data: {eventId: currentEvent.id}  })
-
-  }
-
-//------------------------------------------------------------------------------
-//------handlePutEvent----------------------------------------------------------
-//------------------------------------------------------------------------------
-  const handlePutEvent = () => {
-    console.log('is a put')
-
-    console.log(changedStart)
-    console.log(currentEvent.start)
-
-    // Post event data to backend endpoint
-    axios.put(eventPath, {
-      eventId: currentEvent.id,
-      eventType: changedTitle,
-      start: currentEvent.start,
-      end: currentEvent.end,
-      allDay: currentEvent.allDay
-    }).then((response) => {
-      //handle success
-      let calendarApi = calendarRef.current.getApi()
-      let event = calendarApi.getEventById(currentEvent.id)
-      //delete event immediately in daygrid view
-      event.remove()
-      //show event immediately in daygrid view
-      calendarApi.addEvent({
-        title: changedTitle,
-        start: currentEvent.start,
-        end: changedEnd,
-        allDay: changedallDay
-      })
-      console.log(response);
-      alert('Event successfully updated.')
-    })
-      .catch((response) => {
-        //handle error
-        console.log(response)
-
-        alert('Event could not be updated.')
-
-      })
-    toggle()
   }
 
 //------------------------------------------------------------------------------
@@ -198,14 +187,6 @@ export function MyFullcalendar() {
       changedStart = clickedDate;
     }
 
-    let calendarApi = calendarRef.current.getApi()
-    //show event immediately in daygrid view
-    calendarApi.addEvent({
-      title: changedTitle,
-      start: changedStart ,
-      end: changedEnd,
-      allDay: changedallDay
-    })
     // Post event data to backend endpoint
     axios.post(eventPath + userId, {
       eventType: changedTitle,
@@ -215,43 +196,60 @@ export function MyFullcalendar() {
     });
 
     toggle()
+getEvent()
+  }
+//------------------------------------------------------------------------------
+//------handlePutEvent----------------------------------------------------------
+//------------------------------------------------------------------------------
+  const handlePutEvent = () => {
+    console.log('is a put')
+    console.log(currentEvent.id)
+    console.log(changedTitle)
+    console.log(currentEvent.title)
+    console.log(changedStart)
+    console.log(currentEvent.start)
+    console.log(changedEnd)
+    console.log(currentEvent.end)
+    console.log(changedallDay)
+    console.log(currentEvent.allDay)
+    console.log('-------------');
+    console.log(currentEventTitle);
+    // Post event data to backend endpoint
+    axios.put(eventPath, {
+      eventId: currentEvent.id,
+      eventType: currentEventTitle,
+      start: currentEvent.start,
+      end: currentEvent.end,
+      allDay: currentEvent.allDay
+    }).then((response) => {
+      //handle success
+      console.log(response);
+      alert('Event successfully updated.')
+      getEvent()
+    })
+      .catch((response) => {
+        //handle error
+        console.log(response)
 
+        alert('Event could not be updated.')
+
+      })
+    toggle()
   }
 
+
 //------------------------------------------------------------------------------
-//------handleDateClick---------------------------------------------------------
-//------Postrequest-------------------------------------------------------------
-  const handleDateClick = arg => {
-    console.log('imhandleDateclick')
-    console.log(isPostRequest)
-    changeIsPostRequest(true);
-    console.log(isPostRequest)
-    // Define start str which gets its value from click arg and format it with moment
-    const startDateStr = moment(arg.date).format('YYYY-MM-DDTHH:mm');
-    // release currentEvent in state
-    setCurrentEvent('');
-    setClickedDate(startDateStr);
+//------handleDeleteEvent-------------------------------------------------------
+//------------------------------------------------------------------------------
+  const handleDeleteEvent = () => {
+    let calendarApi = calendarRef.current.getApi()
+    let event = calendarApi.getEventById(currentEvent.id)
+    event.remove()
+    
+    axios.delete(eventPath + userId, { data: {eventId: currentEvent.id}  })
     toggle();
   }
-//------------------------------------------------------------------------------
-//------handleEventClick--------------------------------------------------------
-//------------------------------------------------------------------------------
- 
-  // putRequest
-  const handleEventClick = (clickInfo) => {
-    console.log('imhandleEventclick')
-    console.log(isPostRequest)
-    changeIsPostRequest(false);
-    console.log(isPostRequest)
-    const currentEventObject = { id: clickInfo.event.id, title: clickInfo.event.title, allDay: clickInfo.event.allDay, start: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'), end: moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm') };
-    if (clickInfo.event.end != null) {
-      currentEventObject.end = moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm');
-    }
 
-    setCurrentEvent(currentEventObject);
-    setClickedDate(currentEventObject.start);
-    toggle();
-  }
 
 //------------------------------------------------------------------------------
 //------final output------------------------------------------------------------
@@ -295,11 +293,11 @@ export function MyFullcalendar() {
         toggle={toggle}
       >
         <ModalHeader toggle={toggle}>
-          Edit Event: {currentEvent.title}
+          Edit Event: {currentEventTitle}
         </ModalHeader>
         <ModalBody>
           <div>
-            <select onChange={(e) => handleChangeEvent(e, 'title')} defaultValue={currentEvent.title} className="form-select" aria-label="Default select example">
+            <select onChange={(e) => handleChangeEvent(e, 'title')} defaultValue={currentEventTitle} className="form-select" aria-label="Default select example">
               <option value="Arbeitszeit">Arbeitszeit</option>
               <option value="Ferien">Ferien</option>
               <option value="Militär">Militär</option>
