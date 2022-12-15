@@ -1,10 +1,18 @@
-import React from "react"
+import React from "react";
+//importing CSS
 import './Login.css';
+//importing useNavigate to navigate from login page to calendar page
 import { useNavigate } from 'react-router-dom';
+//importing axios for backend api
 import axios from 'axios';
-const session_url = 'http://localhost:8080/login';
+
+//define global variable
 export let currentUser = {};
 
+//define url path
+const session_url = 'http://localhost:8080/login';
+
+//login function for app.js
 export function Login(props) {
   const navigate = useNavigate();
   let uname;
@@ -24,9 +32,9 @@ export function Login(props) {
 
       //checks if backend found a user
       if (response.data) {
-        // save userdata for session
+        //save userdata for session
         currentUser = response.data;
-        // redirect to /fullcalendar
+        //redirect to /fullcalendar
         navigate('fullcalendar');
       } else {
         alert('Wrong username or password.')

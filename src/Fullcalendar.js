@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
-//Importing FullCalendar Module
-
-import FullCalendar, { } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import 'bootstrap/dist/css/bootstrap.min.css'; //macht alles blau
-import Button from 'react-bootstrap/Button'
-import 'bootstrap/dist/js/bootstrap.min.js'
-import moment from 'moment';
-import "@fullcalendar/daygrid/main.css"
-import "@fullcalendar/timegrid/main.css"
+//importing FullCalendar Module
+import FullCalendar, { } from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+//importing FullCalendar CSS
+import "@fullcalendar/daygrid/main.css";
+import "@fullcalendar/timegrid/main.css";
+//importing modal view and bootstrap styles
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import { useNavigate } from "react-router-dom";
-import { currentUser } from './Login';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import Button from 'react-bootstrap/Button';
+import 'bootstrap/dist/js/bootstrap.min.js';
+//importing moment for date conversions
+import moment from 'moment';
+//importing axios for backend api
 import axios from 'axios';
+//importing useNavigate to navigate from calendarpage to loginpage
+import { useNavigate } from "react-router-dom";
+//importing global variable from Login page
+import { currentUser } from './Login';
 //axios.defaults.baseURL = '159.69.194.20:8080';
 
-
+// calendar function for app.js
 export function MyFullcalendar() {
   //initialize constants
   const navigate = useNavigate();
@@ -42,8 +46,8 @@ export function MyFullcalendar() {
   //------------------------------------------------------------------------------
   const getEvent = async () => {
     await axios.get(eventPath + userId).then(response => {
-      // getting and setting api data into variable
-      // get events from database
+      //getting and setting api data into variable
+      //get events from database
 
       var data = [];
 
@@ -74,10 +78,10 @@ export function MyFullcalendar() {
       navigate('login')
     }
 
-    // initialize all user based events
+    //initialize all user based events
     getEvent();
 
-    // eslint-disable-next-line
+    //eslint-disable-next-line
   }, []);
 
 
@@ -121,10 +125,10 @@ export function MyFullcalendar() {
   //------handleDateClick---------------------------------------------------------
   //------for postrequest---------------------------------------------------------
   const handleDateClick = arg => {
-    // Set boolean to true to handle post request with axios
+    //set boolean to true to handle post request with axios
     changeIsPostRequest(true);
 
-    // Define start and end str which gets its value from click arg and format it with moment
+    //define start and end str which gets its value from click arg and format it with moment
     SetCurrentEventStart(moment(arg.date).format('YYYY-MM-DDTHH:mm'));
     SetCurrentEventEnd(moment(arg.date).format('YYYY-MM-DDTHH:mm'));
 
@@ -136,16 +140,16 @@ export function MyFullcalendar() {
   //------handleEventClick--------------------------------------------------------
   //--------for putrequest--------------------------------------------------------
   const handleEventClick = (clickInfo) => {
-    // Set boolean to false to handle put request with axios
+    //set boolean to false to handle put request with axios
     changeIsPostRequest(false);
-    // Set current event states with clickinfo parameters
+    //set current event states with clickinfo parameters
     SetCurrentEventId(clickInfo.event.id);
     SetCurrentEventTitle(clickInfo.event.title);
     SetCurrentEventStart(moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'));
     SetCurrentEventEnd(moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm')); 
     SetCurrentEventAllDay(false)
     
-    // Prevents setting end variable to null or undefined in modal view
+    //prevents setting end variable to null or undefined in modal view
     if (clickInfo.event.end != null) {
       SetCurrentEventEnd(moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm'));
     }
@@ -178,7 +182,7 @@ export function MyFullcalendar() {
   //------handlePostEvent---------------------------------------------------------
   //------------------------------------------------------------------------------
   const handlePostEvent = () => {
-    // Post event data to backend endpoint
+    //post event data to backend endpoint
     axios.post(eventPath + userId, {
       eventType: currentEventTitle,
       start: currentEventStart,
@@ -195,7 +199,7 @@ export function MyFullcalendar() {
   //------handlePutEvent----------------------------------------------------------
   //------------------------------------------------------------------------------
   const handlePutEvent = () => {
-    // Post event data via put method to backend endpoint
+    //post event data via put method to backend endpoint
     axios.put(eventPath, {
       eventId: currentEventId,
       eventType: currentEventTitle,
@@ -223,7 +227,7 @@ export function MyFullcalendar() {
   const handleDeleteEvent = () => {
     let calendarApi = calendarRef.current.getApi()
     let event = calendarApi.getEventById(currentEventId)
-    //Deletes event immediately in GUI
+    //deletes event immediately in GUI
     event.remove();
     //send delete request in backend
     axios.delete(eventPath + userId, { data: { eventId: currentEventId } });
