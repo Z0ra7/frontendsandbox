@@ -1,15 +1,18 @@
 import React from "react"
 import './Login.css';
-import {useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const session_url = 'http://localhost:8080/login';
-export let currentUser={};
+export let currentUser = {};
+
 export function Login(props) {
   const navigate = useNavigate();
-
   let uname;
   let password;
 
+  //------------------------------------------------------------------------------
+  //------handleSubmit------------------------------------------------------------
+  //------------------------------------------------------------------------------
   const handleSubmit = event => {
     event.preventDefault();
 
@@ -31,7 +34,12 @@ export function Login(props) {
     });
   }
 
+
+  //------------------------------------------------------------------------------
+  //------handleOnBlur------------------------------------------------------------
+  //------------------------------------------------------------------------------
   const handleOnBlur = (e, prop) => {
+    //saves user input in login form
     if (prop === "uname") {
       uname = e.target.value;
     } else if (prop === "password") {
@@ -42,12 +50,14 @@ export function Login(props) {
   }
 
 
+  //------------------------------------------------------------------------------
+  //------final output login form-------------------------------------------------
+  //--------index page------------------------------------------------------------
   return (
     <div className="Auth-form-container">
-
       <form className="Auth-form">
         <div className="Auth-form-content">
-          <img src={require('./FFHS_Logo.png')} alt="FFHS Logo"/>
+          <img src={require('./FFHS_Logo.png')} alt="FFHS Logo" />
           <h3 className="Auth-form-title">Sign In</h3>
           <div className="form-group mt-3">
             <label>Username</label>
