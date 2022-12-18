@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+//importing custom CSS
 import './Fullcalendar.css';
 //importing FullCalendar Module
 import FullCalendar, { } from '@fullcalendar/react';
@@ -93,7 +94,7 @@ export function MyFullcalendar() {
   };
 
   //------------------------------------------------------------------------------
-  //------logout-----------------------------------------------------
+  //------logout------------------------------------------------------------------
   //------------------------------------------------------------------------------
   const logout = () => {
     navigate('login')
