@@ -249,7 +249,19 @@ export function MyFullcalendar() {
     //deletes event immediately in GUI
     event.remove();
     //send delete request in backend
-    axios.delete(eventPath + userId, { data: { eventId: currentEventId } });
+    axios.delete(eventPath + userId, { 
+      data: { eventId: currentEventId } 
+    }).then((response) => {
+      //handle success
+      console.log(response);
+      alert('Event successfully deleted.');
+      getEvent();
+    })
+      .catch((response) => {
+        //handle error/exception
+        console.log(response);
+        alert('Event could not be deleted.');
+      })
     toggle();
   }
 
