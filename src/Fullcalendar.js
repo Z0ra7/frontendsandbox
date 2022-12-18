@@ -20,7 +20,6 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 //importing global variable from Login page
 import { currentUser } from './Login';
-//axios.defaults.baseURL = '159.69.194.20:8080';
 
 // calendar function for app.js
 export function MyFullcalendar() {
