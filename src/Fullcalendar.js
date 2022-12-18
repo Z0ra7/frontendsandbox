@@ -197,7 +197,17 @@ export function MyFullcalendar() {
       start: currentEventStart,
       end: currentEventEnd,
       allDay: currentEventAllDay
-    });
+    }).then((response) => {
+      //handle success
+      console.log(response);
+      alert('Event successfully created.');
+      getEvent();
+    })
+      .catch((response) => {
+        //handle error/exception
+        console.log(response);
+        alert('Event could not be created.');
+      })
 
     toggle();
     getEvent();
