@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './Fullcalendar.css';
 //importing FullCalendar Module
 import FullCalendar, { } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -9,7 +10,7 @@ import "@fullcalendar/daygrid/main.css";
 import "@fullcalendar/timegrid/main.css";
 //importing modal view and bootstrap styles
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/js/bootstrap.min.js';
 //importing moment for date conversions
@@ -91,6 +92,14 @@ export function MyFullcalendar() {
     setIsPostRequest(isPostReq);
   };
 
+  //------------------------------------------------------------------------------
+  //------logout-----------------------------------------------------
+  //------------------------------------------------------------------------------
+  const logout = () => {
+    navigate('login')
+  };
+
+
 
   //------------------------------------------------------------------------------
   //------changeIsPostRequest-----------------------------------------------------
@@ -145,9 +154,9 @@ export function MyFullcalendar() {
     SetCurrentEventId(clickInfo.event.id);
     SetCurrentEventTitle(clickInfo.event.title);
     SetCurrentEventStart(moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'));
-    SetCurrentEventEnd(moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm')); 
+    SetCurrentEventEnd(moment(clickInfo.event.start).format('YYYY-MM-DDTHH:mm'));
     SetCurrentEventAllDay(false)
-    
+
     //prevents setting end variable to null or undefined in modal view
     if (clickInfo.event.end != null) {
       SetCurrentEventEnd(moment(clickInfo.event.end).format('YYYY-MM-DDTHH:mm'));
@@ -239,7 +248,10 @@ export function MyFullcalendar() {
   //--------homepage--------------------------------------------------------------
   return (
     <div className="App">
-      <h1>SE Terminkalender von {currentUser.username}</h1>
+      <div class="flex-box">
+        <h1>SE Terminkalender von {currentUser.username} </h1>
+        <button type="button" className="btn btn-danger" onClick={logout}>Logout</button>
+      </div>
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
