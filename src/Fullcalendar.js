@@ -248,10 +248,11 @@ export function MyFullcalendar() {
   //--------homepage--------------------------------------------------------------
   return (
     <div className="App">
-      <div class="flex-box">
-        <h1>SE Terminkalender von {currentUser.username} </h1>
+      <h1>SE Terminkalender von {currentUser.username} </h1>
+      <div class="flex-box-2">
         <button type="button" className="btn btn-danger" onClick={logout}>Logout</button>
       </div>
+      <p></p>
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
