@@ -250,7 +250,7 @@ export function MyFullcalendar() {
   return (
     <div className="App">
       <h1>SE Terminkalender von {currentUser.username} </h1>
-      <div class="flex-box-2">
+      <div className="flex-box-2">
         <button type="button" className="btn btn-danger" onClick={logout}>Logout</button>
       </div>
       <p></p>
