@@ -200,7 +200,6 @@ export function MyFullcalendar() {
     }).then((response) => {
       //handle success
       console.log(response);
-      alert('Event successfully created.');
       getEvent();
     })
       .catch((response) => {
@@ -228,7 +227,6 @@ export function MyFullcalendar() {
     }).then((response) => {
       //handle success
       console.log(response);
-      alert('Event successfully updated.');
       getEvent();
     })
       .catch((response) => {
@@ -254,7 +252,6 @@ export function MyFullcalendar() {
     }).then((response) => {
       //handle success
       console.log(response);
-      alert('Event successfully deleted.');
       getEvent();
     })
       .catch((response) => {
